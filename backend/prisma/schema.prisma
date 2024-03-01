@@ -38,5 +38,5 @@ model ShapePoint {
 model Inspectors {
   id        Int      @id @default(autoincrement())
   vehicleId String
-  date      DateTime
+  reportedAt      DateTime
 }
