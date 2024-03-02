@@ -2,9 +2,10 @@ import "dotenv/config";
 import Express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { registerSocketHandlers } from "@socket/socket";
+import { initializeSocket } from "@socket/index";
 import cron from "node-cron";
 import { updateData } from "@helpers/databaseImport";
+import router from "@routes/router";
 
 const PORT = parseInt(process.env.PORT || "8080");
 const HOST = process.env.HOST;
@@ -13,7 +14,9 @@ const app = Express();
 export const server = http.createServer(app);
 const io = new Server(server);
 
-registerSocketHandlers(io);
+app.use(router);
+
+initializeSocket(io);
 cron.schedule("0 0 * * *", () => {
   updateData(["shapes", "trips"]).catch((err) => {
     console.error("Error updating data:", err);
