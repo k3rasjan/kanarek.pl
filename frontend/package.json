@@ -1,0 +1,11 @@
+{
+  "name": "kanarek.pl",
+  "version": "0.0.1",
+  "description": "An application for locating ticket inspecors.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "NIGGERs AND JEWS",
+  "license": "ISC"
+}

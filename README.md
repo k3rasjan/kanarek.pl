@@ -1,2 +1,1 @@
-# kanarek.pl
-Aplikacja do śledzenia kanarów.
+jebac pedalow, fuck niggas

@@ -1,0 +1,11 @@
+{
+  "name": "kanarek.pl_api",
+  "version": "0.0.1",
+  "description": "API for kanarek.pl",
+  "main": "app.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "k3rasjan & JWalczak",
+  "license": "ISC"
+}
