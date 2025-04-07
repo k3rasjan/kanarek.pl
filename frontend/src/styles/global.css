@@ -1,0 +1,55 @@
+/* Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Font i tło ogólne */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+    line-height: 1.6;
+}
+
+/* Linki */
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Nagłówki */
+h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Zmienne CSS (opcjonalnie) */
+:root {
+    --primary-color: #0c0c1d;
+    --text-color: #111827;
+    --border-radius: 0.5rem;
+}
+.container {
+    background-color: white;
+    padding: 2rem;
+    max-width: 400px;
+    margin: 4rem auto;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
