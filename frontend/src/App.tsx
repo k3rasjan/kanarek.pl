@@ -1,23 +1,17 @@
-<<<<<<< HEAD
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './components/Map.tsx'
-
-function App() {
-
-    return <Map />
-
-=======
+import Login from './pages/Login.tsx'
+import  Register from './pages/Register.tsx'
 import './index.css'
+
 function App() {
   return (
-    <>
-        Strona główna
-        <a href="Login.tsx">Zaloguj się</a>
-    </>
+    <BrowserRouter>
+      <Routes>
+          <Route path="/login" element={<Login/>} />
+          <Route path="/register" element={<Register/>} />
+      </Routes>
+    </BrowserRouter>
   )
 }
->>>>>>> 7b56c24b2c8d2d10dbcc9017b317ca06948797be
 export default App
