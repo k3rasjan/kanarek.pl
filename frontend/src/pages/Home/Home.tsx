@@ -6,8 +6,9 @@ function Home() {
         <>
             <header>Strona główna</header>
             <section>
-                <Link to="/login">Zaloguj się</Link>
-                <Link to="/register">Zarejestruj się</Link>
+                <Link to="/login">Zaloguj się</Link><br/>
+                <Link to="/register">Zarejestruj się</Link><br/>
+                <Link to='/zglos-kanara'>Zgłoś kanarka!11!!!!!!!!!!!!</Link>
             </section>
         </>
     )

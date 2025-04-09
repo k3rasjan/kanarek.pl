@@ -30,7 +30,7 @@ function Login() {
                         <div className={styles.checkboxRow}>
                             <label>
                                 <input type="checkbox"/> Zapamiętaj to urządzenie
-                            </label>
+                            </label><br/><br/>
                             <Link to="/przywroc-haslo">Nie pamiętasz hasła?</Link>
                         </div>
                         <br/>
