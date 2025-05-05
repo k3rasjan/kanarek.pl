@@ -13,7 +13,7 @@ export interface IVehicle {
 
 export async function getVehiclePositions(): Promise<IVehicle[]> {
   return new Promise((resolve, reject) => {
-    load("./gtfs-realtime.proto", (err, root) => {
+    load("", (err, root) => {
       if (err) throw err;
 
       const FeedMessage = root!.lookupType("transit_realtime.FeedMessage");

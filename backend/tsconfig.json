@@ -7,7 +7,7 @@
     "strict": true,
     "paths": {
       "@helpers/*": ["./helpers/*"],
+      "@assets/*": ["./assets/"]
     }
   }
-
 }
