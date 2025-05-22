@@ -4,8 +4,21 @@
   "description": "API for kanarek.pl",
   "main": "app.ts",
   "scripts": {
+    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "k3rasjan & JWalczak",
-  "license": "ISC"
+  "author": "k3rasjan & JWalczak123",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "module-alias": "^2.2.3",
+    "prettier": "^3.5.3",
+    "protobufjs": "^7.5.0"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.15"
+  }
 }

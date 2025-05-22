@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext", // ← important
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "baseUrl": "./",
+    "paths": {
+      "@helpers/*": ["./src/helpers/*"],
+      "@assets/*": ["./src/assets/"]
+    }
+  }
+}
