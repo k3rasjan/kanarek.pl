@@ -1,0 +1,24 @@
+Auth
+
+Inspectors:
+  Get:
+    -> Inspectors positions
+    => Websocket feed updating with inspectors updates
+Vehicles:
+  Get:
+    -> vehicles_positions
+    -> closest_vehicle // vehicle that user is most probably in based on users coordinates
+    -> routeID
+    => Websocket updating vehicle position every ztm update
+
+
+
+The PLAN:
+
+What do i want to do? -> An app where users can report and check the positions of tiket inspectors.
+
+1. Report ticket insprectors position.
+  -> position of user
+  -> calculate the most probable vehicle the user and ticket inspector are on
+  -> ask user if the data is correct 
+  -> send to http server and save data (vehivle, inspector probability)

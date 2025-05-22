@@ -5,9 +5,10 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "strict": true,
+    "baseUrl": "./",
     "paths": {
-      "@helpers/*": ["./helpers/*"],
-      "@assets/*": ["./assets/"]
+      "@helpers/*": ["./src/helpers/*"],
+      "@assets/*": ["./src/assets/"]
     }
   }
 }

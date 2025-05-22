@@ -11,7 +11,7 @@ export interface IVehicle {
   lat: number;
 }
 
-export async function getVehiclePositions(): Promise<IVehicle[]> {
+export async function getVehiclePositions(URL: string): Promise<IVehicle[]> {
   return new Promise((resolve, reject) => {
     load("", (err, root) => {
       if (err) throw err;
