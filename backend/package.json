@@ -5,6 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+    "start": "npx tsx server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "k3rasjan & JWalczak123",
@@ -16,7 +17,8 @@
     "express": "^5.1.0",
     "module-alias": "^2.2.3",
     "prettier": "^3.5.3",
-    "protobufjs": "^7.5.0"
+    "protobufjs": "^7.5.0",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "tsc-alias": "^1.8.15"

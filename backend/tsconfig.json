@@ -8,7 +8,9 @@
     "baseUrl": "./",
     "paths": {
       "@helpers/*": ["./src/helpers/*"],
-      "@assets/*": ["./src/assets/"]
+      "@assets/*": ["./src/assets/*"],
+      "@root/*": ["./*"],
+      "@socket/*": ["./src/socket/*"]
     }
   }
 }
