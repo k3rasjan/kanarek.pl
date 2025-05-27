@@ -1,7 +1,14 @@
-import { createRoot } from 'react-dom/client'
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import './styles/global.css';
-import AppRouter from './routes/AppRouter.tsx'
+import AppRouter from './routes/AppRouter';
 
-createRoot(document.getElementById('root')!).render(
-    <AppRouter />
-)
+const root = document.getElementById('root')!;
+createRoot(root).render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <AppRouter />
+        </BrowserRouter>
+    </React.StrictMode>
+);

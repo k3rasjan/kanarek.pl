@@ -14,6 +14,7 @@ function Register() {
                     <form>
                         <FormField
                             label="Nazwa użytkownika"
+                            type="text"
                             name="accname"
                             placeholder="Wprowadź nazwę użytkownika"
                         />
