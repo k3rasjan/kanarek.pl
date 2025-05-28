@@ -1,5 +1,5 @@
 import { load } from "protobufjs";
-import https, { get } from "https";
+import https from "https";
 
 const URL =
   "https://www.ztm.poznan.pl/pl/dla-deweloperow/getGtfsRtFile?file=vehicle_positions.pb";

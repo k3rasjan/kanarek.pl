@@ -4,6 +4,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Inspector {
+  id        Int      @id @default(autoincrement())
+  vehicleId Int
+  date      DateTime
 }

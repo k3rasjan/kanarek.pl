@@ -22,3 +22,16 @@ What do i want to do? -> An app where users can report and check the positions o
   -> calculate the most probable vehicle the user and ticket inspector are on
   -> ask user if the data is correct 
   -> send to http server and save data (vehivle, inspector probability)
+
+2. Display vehicles with(out) inspectors 
+  -> send vehicles_positions to user every update
+  -> send report data(vehicleId, calculated probability of inspctor) -- emit on connect and on every report 
+
+  -> display vehicles_positions
+  -> if there was a report of an inspector on the vehicle color it red 
+
+  regularly ask users for location and check for canars
+
+DATABASE:
+  * reportData -> id, vehicle_id, time, 
+  * vehicle -> 

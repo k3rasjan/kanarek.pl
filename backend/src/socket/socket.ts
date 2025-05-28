@@ -14,7 +14,12 @@ export const registerSocketHandlers = (io: Server) => {
   });
 
   setInterval(async () => {
-    data.vehiclePositions = await getVehiclePositions();
-    io.emit("vehiclePositions", data.vehiclePositions);
+    try {
+      data.vehiclePositions = await getVehiclePositions();
+      io.emit("vehiclePositions", data.vehiclePositions);
+    } catch (error) {
+      console.log("Error fetching vehicle positions", error);
+    }
   }, 10000);
+  console.log("vehiclePositions emitted");
 };
