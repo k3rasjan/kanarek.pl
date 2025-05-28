@@ -1,5 +1,7 @@
 import { load } from "protobufjs";
 import https from "https";
+import { FeedMessage } from "@assets/gtfs/gtfs-realtime";
+import path from "path";
 
 const URL =
   "https://www.ztm.poznan.pl/pl/dla-deweloperow/getGtfsRtFile?file=vehicle_positions.pb";
@@ -11,9 +13,11 @@ export interface IVehicle {
   lat: number;
 }
 
+const PROTO_PATH = path.join(__dirname, "../assets/gtfs/gtfs-realtime.proto");
+
 export async function getVehiclePositions(): Promise<IVehicle[]> {
   return new Promise((resolve, reject) => {
-    load("", (err, root) => {
+    load(PROTO_PATH, (err, root) => {
       if (err) throw err;
 
       const FeedMessage = root!.lookupType("transit_realtime.FeedMessage");

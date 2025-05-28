@@ -33,3 +33,8 @@ export function extractTxtFilesFromZip(zipPath: string, outputDir: string) {
     }
   });
 }
+
+export function parseTxtFile(filePath: string): string[][] {
+  const content = fs.readFileSync(filePath, "utf-8");
+  return content.split("\n").map((line) => line.trim().split(","));
+}

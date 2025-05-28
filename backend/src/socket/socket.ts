@@ -17,6 +17,7 @@ export const registerSocketHandlers = (io: Server) => {
     try {
       data.vehiclePositions = await getVehiclePositions();
       io.emit("vehiclePositions", data.vehiclePositions);
+      console.log(data.vehiclePositions);
     } catch (error) {
       console.log("Error fetching vehicle positions", error);
     }
