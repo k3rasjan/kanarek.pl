@@ -1,6 +1,13 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { createRoot } from "react-dom/client";
+import "./styles/input.css";
+import App from "./App.tsx";
+// import Login from "./Login.tsx";
+
+
 import './styles/global.css';
 import AppRouter from './routes/AppRouter';
 

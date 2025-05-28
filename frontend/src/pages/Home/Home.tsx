@@ -3,6 +3,7 @@ import './Home.css';
 
 export default function Home() {
     return (
+
         <div className="home-container">
             <header className="home-header">
                 <h1>Kanarek AI</h1>
@@ -20,4 +21,15 @@ export default function Home() {
             </footer>
         </div>
     );
+
+        <>
+            <header>Strona główna</header>
+            <section>
+                <Link to="/login">Zaloguj się</Link><br/>
+                <Link to="/register">Zarejestruj się</Link><br/>
+                <Link to='/zglos-kanara'>Zgłoś kanarka!11!!!!!!!!!!!!</Link>
+            </section>
+        </>
+    )
+
 }
