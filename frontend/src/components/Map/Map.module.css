@@ -1,0 +1,29 @@
+.mapPageContainer {
+    font-family: sans-serif;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar {
+    background-color: #20232a;
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+.mapAndFeed {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+.mapSection {
+    flex: 2;
+    position: relative;
+}
+
+.feedSection {
+    flex: 1;
+    background: #f5f5f5;
+    padding: 20px;
+    overflow-y: auto;
+}

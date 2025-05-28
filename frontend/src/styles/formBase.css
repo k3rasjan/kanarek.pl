@@ -4,9 +4,12 @@ form {
     gap: 1rem;
 }
 
+input[type="text"],
+
 
 input[type="text"],
 input[type="number"],
+
 input[type="email"],
 input[type="password"] {
     width: 100%;
