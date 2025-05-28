@@ -1,6 +1,7 @@
 import './MapPage.css';
 import Map from '../../components/Map/Map';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const mockReports = [
     {
@@ -16,6 +17,12 @@ const mockReports = [
         timestamp: '2025-05-22 12:10',
     },
 ];
+
+const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/login';
+};
+
 
 export default function MapPage() {
     const [showMenu, setShowMenu] = useState(false);
@@ -37,7 +44,7 @@ export default function MapPage() {
                 </ul>
             </aside>
 
-            <button className="report-button" title="Zgłoś kontrolę">!</button>
+            <Link to="/zgloszenie" className="report-button">!</Link>
             <div className="user-menu">
                 <button className="user-icon" onClick={() => toggleMenu()}>
                     👤
@@ -45,8 +52,10 @@ export default function MapPage() {
                 {showMenu && (
                     <div className="user-dropdown">
                         <ul>
-                            <li><a href="#">Moje konto</a></li>
-                            <li><a href="#">Wyloguj</a></li>
+                            <li><Link to="/moje-konto">Moje konto</Link></li>
+                            <li>
+                                <button onClick={handleLogout}>Wyloguj</button>
+                            </li>
                         </ul>
                     </div>
                 )}

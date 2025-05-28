@@ -1,0 +1,57 @@
+.report-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.report-form {
+    background-color: #d9d9d9;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    max-width: 400px;
+    width: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.report-form h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+}
+
+.report-form label {
+    display: block;
+    margin-bottom: 1.25rem;
+    font-weight: bold;
+    color: black;
+}
+
+.report-form input {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+.report-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #0c0c1d;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.report-form button:hover {
+    background-color: #1e1e2e;
+}
