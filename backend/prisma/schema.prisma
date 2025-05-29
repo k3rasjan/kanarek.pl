@@ -8,28 +8,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Inspectors {
-  id        Int      @id @default(autoincrement())
-  vehicleId Int
-  date      DateTime
-}
-
 model Trips {
-  route_id              Int
-  service_id            Int
   trip_id               String @id
   trip_headsign         String
-  direction_id          Int
-  shape_id              Int
+  direction_id          String
+  shape_id              String
+  wheelchair_accessible String
+  brigade               String
   Shapes                Shapes @relation(fields: [shape_id], references: [shape_id])
-  wheelchair_accessible Int
-  brigade               Int
 }
 
 model Shapes {
-  shape_id          Int     @id
-  shape_pt_lat      Float
-  shape_pt_lon      Float
-  shape_pt_sequence Int
+  shape_id          String  @id
+  shape_points      ShapePoint[]
   Trips             Trips[]
+}
+
+model ShapePoint {
+  id                Int      @id @default(autoincrement())
+  shape_id          String
+  shape_pt_lat      String
+  shape_pt_lon      String
+  shape_pt_sequence String
+  Shapes            Shapes   @relation(fields: [shape_id], references: [shape_id])
+
+  @@unique([shape_id, shape_pt_sequence])
+}
+
+model Inspectors {
+  id        Int      @id @default(autoincrement())
+  vehicleId String
+  date      DateTime
 }

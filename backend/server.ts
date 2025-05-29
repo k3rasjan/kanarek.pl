@@ -15,7 +15,7 @@ const io = new Server(server);
 
 registerSocketHandlers(io);
 cron.schedule("0 0 * * *", () => {
-  updateData(["shapes, trips"]).catch((err) => {
+  updateData(["shapes", "trips"]).catch((err) => {
     console.error("Error updating data:", err);
   });
 });
