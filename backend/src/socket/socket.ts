@@ -9,6 +9,7 @@ export const registerSocketHandlers = (io: Server) => {
       socket.emit("vehiclePositions", data.vehiclePositions);
     } catch (error) {
       console.error("Error fetching vehicle positions:", error);
+      console.log(data.vehiclePositions);
     }
     console.log("New client connected");
   });
@@ -17,9 +18,8 @@ export const registerSocketHandlers = (io: Server) => {
     try {
       data.vehiclePositions = await getVehiclePositions();
       io.emit("vehiclePositions", data.vehiclePositions);
-      console.log(data.vehiclePositions);
     } catch (error) {
-      console.log("Error fetching vehicle positions", error);
+      console.error("Error fetching vehicle positions", error);
     }
   }, 10000);
   console.log("vehiclePositions emitted");

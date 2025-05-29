@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated"
 }
 
 datasource db {
@@ -7,26 +8,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Inspector {
+model Inspectors {
   id        Int      @id @default(autoincrement())
   vehicleId Int
   date      DateTime
 }
 
-model Trip {
-  routeId               Int
+model Trips {
+  route_id              Int
   service_id            Int
   trip_id               String @id
   trip_headsign         String
   direction_id          Int
   shape_id              Int
+  Shapes                Shapes @relation(fields: [shape_id], references: [shape_id])
   wheelchair_accessible Int
   brigade               Int
 }
 
-model Shape {
-  shape_id          Int   @id
+model Shapes {
+  shape_id          Int     @id
   shape_pt_lat      Float
   shape_pt_lon      Float
   shape_pt_sequence Int
+  Trips             Trips[]
 }
