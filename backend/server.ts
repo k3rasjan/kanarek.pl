@@ -14,6 +14,8 @@ const app = Express();
 export const server = http.createServer(app);
 const io = new Server(server);
 
+app.use(Express.json());
+
 app.use(router);
 
 initializeSocket(io);
