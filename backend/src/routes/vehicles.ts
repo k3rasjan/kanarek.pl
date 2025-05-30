@@ -3,7 +3,7 @@ import { getVehiclePositions } from "@helpers/vehiclePositions";
 
 const router = Router();
 
-router.get("/vehicles/get/positions", async (req, res) => {
+router.get("/get-positions", async (req, res) => {
   const vehiclePositions = await getVehiclePositions();
 
   res.statusCode = 200;
