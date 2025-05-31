@@ -31,21 +31,36 @@
             android:text="Autobus" />
     </RadioGroup>
 
-    <EditText
-        android:id="@+id/line_number_input"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Numer linii"
-        android:inputType="number"
+        android:text="Wybierz linię:"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="4dp"/>
+
+    <Spinner
+        android:id="@+id/line_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ile kanarów znajduje się w pojedzie?"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="4dp"/>
 
     <EditText
         android:id="@+id/inspector_count_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Liczba kanarów"
         android:inputType="number"
-        android:layout_marginTop="8dp"/>
+        android:hint="Liczba kanarów"
+        android:text="2"
+        android:layout_marginTop="16dp"/>
 
     <Button
         android:id="@+id/submit_report_button"

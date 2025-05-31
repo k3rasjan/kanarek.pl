@@ -24,16 +24,26 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import retrofit2.*;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private final Map<String, LatLng> stationCoordinates = new HashMap<String, LatLng>() {{
+        put("Rondo Kaponiera", new LatLng(52.4064, 16.9115));
+        put("Most Teatralny", new LatLng(52.4101, 16.9183));
+        put("Dworzec Główny", new LatLng(52.4000, 16.9128));
+        put("Os. Lecha", new LatLng(52.3969, 17.0041));
+        put("Górczyn", new LatLng(52.3856, 16.9004));
+    }};
+
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private final List<LocationData> locations = new ArrayList<>();
     private InspectorApi api;
-    private Button checkButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,25 +53,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080") // emulator -> localhost
+                .baseUrl("http://10.0.2.2:8080")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(InspectorApi.class);
 
-        // Przycisk sprawdzający pojazd
-        checkButton = findViewById(R.id.checkVehicleButton);
-        checkButton.setOnClickListener(v -> checkVehicleProcess());
-
-        // Przycisk zgłoszenia (!)
         Button reportButton = findViewById(R.id.report_button);
         reportButton.setOnClickListener(v -> showReportDialog());
 
-        // Fragment mapy
+        setupStationSearch();
+
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+    }
+
+    private void setupStationSearch() {
+        AutoCompleteTextView input = findViewById(R.id.station_search_input);
+
+        String[] stations = stationCoordinates.keySet().toArray(new String[0]);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, stations);
+        input.setAdapter(adapter);
+
+        input.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = adapter.getItem(position);
+            LatLng coords = stationCoordinates.get(selected);
+            if (coords != null && mMap != null) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coords, 15));
+            } else {
+                Toast.makeText(this, "Nie znaleziono przystanku", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void checkVehicleProcess() {
@@ -112,9 +136,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     LatLng vehicleLatLng = new LatLng(vehicle.lat, vehicle.long_);
 
                     runOnUiThread(() -> {
-                        mMap.addMarker(new MarkerOptions()
-                                .position(vehicleLatLng)
-                                .title("Pojazd ID: " + vehicle.id));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(vehicleLatLng, 15));
 
                         new AlertDialog.Builder(MapActivity.this)
@@ -160,49 +181,70 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         dialog.setContentView(view);
 
         RadioGroup typeGroup = view.findViewById(R.id.vehicle_type_group);
-        EditText lineInput = view.findViewById(R.id.line_number_input);
-        EditText inspectorInput = view.findViewById(R.id.inspector_count_input);
+        Spinner lineSpinner = view.findViewById(R.id.line_spinner);
         Button submit = view.findViewById(R.id.submit_report_button);
 
+        loadLinesIntoSpinner(lineSpinner);
+
         submit.setOnClickListener(v -> {
-            String type = "";
             int checkedId = typeGroup.getCheckedRadioButtonId();
-            if (checkedId != -1) {
-                type = ((RadioButton) view.findViewById(checkedId)).getText().toString();
-            }
-
-            String line = lineInput.getText().toString();
-            String count = inspectorInput.getText().toString();
-
-            if (type.isEmpty() || line.isEmpty() || count.isEmpty()) {
-                Toast.makeText(this, "Uzupełnij wszystkie pola", Toast.LENGTH_SHORT).show();
+            if (checkedId == -1) {
+                Toast.makeText(this, "Wybierz typ pojazdu", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // (Opcjonalnie) Wyślij dane do API – TODO: możesz dodać własne zgłoszenie tu
+            String type = ((RadioButton) view.findViewById(checkedId)).getText().toString();
+            String line = lineSpinner.getSelectedItem().toString();
+            String count = "2"; // domyślnie 2
 
-            Toast.makeText(this,
-                    "Zgłoszono: " + type + " " + line + ", kanarów: " + count,
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Zgłoszono: " + type + " " + line + ", kanarów: " + count, Toast.LENGTH_SHORT).show();
 
             dialog.dismiss();
-
-            // ✅ WYWOŁAJ "checkVehicleProcess" automatycznie po zgłoszeniu
             checkVehicleProcess();
         });
 
         dialog.show();
     }
 
+    private void loadLinesIntoSpinner(Spinner spinner) {
+        List<String> lines = new ArrayList<>();
+        lines.add("1");
+        lines.add("5");
+        lines.add("6");
+        lines.add("12");
+        lines.add("18");
+        lines.add("201");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, lines);
+        spinner.setAdapter(adapter);
+        setupStationSearch();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    }
+
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng poznan = new LatLng(52.4027, 16.9124);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(poznan, 13));
 
-        mMap.addMarker(new MarkerOptions()
-                .position(poznan)
-                .title("Centrum Poznania"));
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
+                } else {
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.4027, 16.9124), 13));
+                    Toast.makeText(this, "Nie udało się pobrać lokalizacji", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } else {
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.4027, 16.9124), 13));
+            Toast.makeText(this, "Brak uprawnień do lokalizacji", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private interface LocationCallback {
