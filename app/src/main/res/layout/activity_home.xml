@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light">
+
+    <TextView
+        style="@style/KanarekHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/home_title" />
+
+    <TextView
+        style="@style/KanarekSubheader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/home_subtitle" />
+
+    <Button
+        android:id="@+id/login_button"
+        style="@style/KanarekButton"
+        android:text="@string/login_button" />
+
+    <Button
+        android:id="@+id/register_button"
+        style="@style/KanarekButton"
+        android:text="@string/register_button" />
+
+    <Button
+        android:id="@+id/map_button"
+        style="@style/KanarekButton"
+        android:text="@string/map_button" />
+
+    <TextView
+        android:text="@string/footer_text"
+        android:textSize="12sp"
+        android:layout_marginTop="48dp"
+        android:layout_gravity="center"
+        android:textColor="@color/text_primary"
+        android:fontFamily="sans-serif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

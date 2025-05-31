@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tło -->
+    <color name="background_light">#f9fafb</color>
+    <color name="text_primary">#111827</color>
+
+    <!-- Kolory główne -->
+    <color name="primary_color">#0c0c1d</color>
+    <color name="primary_color_dark">#1e1e2e</color>
+    <color name="accent_blue">#2563eb</color>
+
+    <!-- Przyciski / obramowania -->
+    <color name="border_gray">#cccccc</color>
+    <color name="icon_background">#ffffff</color>
+    <color name="icon_hover_background">#f0f0f0</color>
+</resources>

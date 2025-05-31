@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">My Application</string>
+
+
+    <!-- HomeActivity -->
+    <string name="home_title">Kanarek.pl</string>
+    <string name="home_subtitle">Twoje ostrzeżenia o kontrolerach biletów</string>
+    <string name="login_button">Zaloguj się</string>
+    <string name="register_button">Zarejestruj się</string>
+    <string name="map_button">Zobacz mapę zagrożeń</string>
+    <string name="footer_text">© 2025 Kanarek.pl</string>
+
+    <!-- Formularze -->
+    <string name="email_hint">E-mail</string>
+    <string name="password_hint">Hasło</string>
+    <string name="username_hint">Nazwa użytkownika</string>
+    <string name="submit_button">Wyślij</string>
+    <string name="back">Wstecz</string>
+
+    <!-- LoginActivity -->
+    <string name="login_welcome">WITAMY NA KANAREK.PL</string>
+    <string name="remember_device">Zapamiętaj to urządzenie</string>
+    <string name="forgot_password">Nie pamiętasz hasła?</string>
+    <string name="empty_credentials_warning">Wprowadź dane logowania</string>
+    <string name="login_success">Zalogowano jako %1$s</string>
+
+
+    <string name="reset_header">ZRESETUJ HASŁO</string>
+    <string name="reset_subtitle">Wprowadź nowe hasło dla: %1$s</string>
+    <string name="confirm_password_label">Powtórz hasło</string>
+    <string name="reset_button">ZRESETUJ HASŁO</string>
+    <string name="password_required">Uzupełnij oba pola</string>
+    <string name="password_mismatch">Hasła się nie zgadzają</string>
+    <string name="password_reset_success">Hasło zresetowane!</string>
+
+    <string name="register_header">UTWÓRZ KONTO</string>
+    <string name="already_have_account">Posiadasz już konto?</string>
+</resources>

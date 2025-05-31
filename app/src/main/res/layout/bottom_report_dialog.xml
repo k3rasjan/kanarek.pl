@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Typ pojazdu"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/vehicle_type_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/tram_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tramwaj" />
+
+        <RadioButton
+            android:id="@+id/bus_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Autobus" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/line_number_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Numer linii"
+        android:inputType="number"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/inspector_count_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Liczba kanarów"
+        android:inputType="number"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/submit_report_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Zgłoś"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Styl ogólny aplikacji -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryDark">@color/primary_color_dark</item>
+        <item name="colorAccent">@color/accent_blue</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:background">@color/background_light</item>
+    </style>
+
+    <!-- Styl przycisku -->
+    <style name="KanarekButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/primary_color</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:backgroundTint">@color/primary_color</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Styl pola tekstowego (EditText) -->
+    <style name="KanarekEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:background">@android:drawable/edit_text</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:hint">#888888</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <!-- Styl nagłówka (np. h1) -->
+    <style name="KanarekHeader">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Styl podtytułu (np. h2) -->
+    <style name="KanarekSubheader">
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+        <!-- Ciemny przycisk jak na web -->
+        <style name="KanarekButton.Dark">
+            <item name="android:layout_width">match_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:backgroundTint">@color/primary_color</item>
+            <item name="android:textColor">@android:color/white</item>
+            <item name="android:padding">14dp</item>
+            <item name="android:textSize">16sp</item>
+            <item name="android:fontFamily">sans-serif</item>
+            <item name="android:background">@drawable/rounded_button</item>
+        </style>
+    <style name="KanarekEditText.Rounded">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:background">@drawable/rounded_input</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:hint">#999999</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+</resources>
