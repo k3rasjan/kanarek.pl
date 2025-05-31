@@ -1,5 +1,6 @@
 import { Router, Request, Response, RequestHandler } from 'express';
 import { findMostLikelyVehicle, reportInspector } from '@helpers/vehiclePositions';
+import { vehicleStore } from "@helpers/stores";
 
 const router = Router();
 
@@ -20,21 +21,44 @@ const findVehicleHandler: RequestHandler = async (req, res) => {
     const { locations } = req.body as LocationRequest;
     
     if (!locations || !Array.isArray(locations) || locations.length === 0) {
-      res.status(400).json({ error: 'Invalid locations data' });
+      res.status(400).json({ 
+        status: "error",
+        message: "Invalid locations data",
+        data: null
+      });
       return;
     }
 
     const vehicle = await findMostLikelyVehicle(locations);
     
     if (!vehicle) {
-      res.status(404).json({ error: 'No matching vehicle found' });
+      res.status(404).json({ 
+        status: "error",
+        message: "No matching vehicle found",
+        data: null
+      });
       return;
     }
 
-    res.json(vehicle);
+    res.json({
+      status: "success",
+      data: vehicle
+    });
   } catch (error) {
     console.error('Error finding vehicle:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (error instanceof Error && error.message === "NO_VEHICLE_DATA") {
+      res.status(200).json({
+        status: "error",
+        message: "ZTM server is not providing vehicle data at the moment",
+        data: null
+      });
+    } else {
+      res.status(500).json({ 
+        status: "error",
+        message: "Internal server error",
+        data: null
+      });
+    }
   }
 };
 
