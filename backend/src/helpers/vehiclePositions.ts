@@ -129,37 +129,37 @@ export async function findMostLikelyVehicle(locations: Location[]): Promise<IVeh
     const averageDistance = totalDistance / locations.length;
     let score = 1 / (1 + averageDistance);
 
-    // const userVector = calculateVector(
-    //   locations[0].lat,
-    //   locations[0].long,
-    //   locations[locations.length - 1].lat,
-    //   locations[locations.length - 1].long
-    // );
+    const userVector = calculateVector(
+      locations[0].lat,
+      locations[0].long,
+      locations[locations.length - 1].lat,
+      locations[locations.length - 1].long
+    );
 
-    // const closestPoints = shape.shape_points
-    //   .map(point => ({
-    //     point,
-    //     distance: calculateDistance(
-    //       vehicle.lat,
-    //       vehicle.long,
-    //       parseFloat(point.shape_pt_lat),
-    //       parseFloat(point.shape_pt_lon)
-    //     )
-    //   }))
-    //   .sort((a, b) => a.distance - b.distance)
-    //   .slice(0, 2);
+    const closestPoints = shape.shape_points
+      .map(point => ({
+        point,
+        distance: calculateDistance(
+          vehicle.lat,
+          vehicle.long,
+          parseFloat(point.shape_pt_lat),
+          parseFloat(point.shape_pt_lon)
+        )
+      }))
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 2);
 
-    // if (closestPoints.length === 2) {
-    //   const vehicleVector = calculateVector(
-    //     parseFloat(closestPoints[0].point.shape_pt_lat),
-    //     parseFloat(closestPoints[0].point.shape_pt_lon),
-    //     parseFloat(closestPoints[1].point.shape_pt_lat),
-    //     parseFloat(closestPoints[1].point.shape_pt_lon)
-    //   );
+    if (closestPoints.length === 2) {
+      const vehicleVector = calculateVector(
+        parseFloat(closestPoints[0].point.shape_pt_lat),
+        parseFloat(closestPoints[0].point.shape_pt_lon),
+        parseFloat(closestPoints[1].point.shape_pt_lat),
+        parseFloat(closestPoints[1].point.shape_pt_lon)
+      );
 
-    //   const vectorSimilarity = calculateVectorSimilarity(userVector, vehicleVector);
-    //   score *= (1 + vectorSimilarity);
-    // }
+      const vectorSimilarity = calculateVectorSimilarity(userVector, vehicleVector);
+      score *= (1 + vectorSimilarity);
+    }
 
     if (!bestMatch || score > bestMatch.score) {
       bestMatch = { vehicle, score };

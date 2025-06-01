@@ -6,8 +6,8 @@ const router = Router();
 
 interface LocationRequest {
   locations: {
-    lat: number;
     long: number;
+    lat: number;
     timestamp: number;
   }[];
 }
