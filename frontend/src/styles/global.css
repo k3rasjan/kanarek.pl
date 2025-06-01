@@ -53,3 +53,25 @@ h2 {
     text-align: center;
     margin-bottom: 2rem;
 }
+.back-icon {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    width: 44px;
+    height: 44px;
+    background-color: white;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    font-size: 22px;
+    color: #333;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.back-icon:hover {
+    background-color: #f0f0f0;
+}
