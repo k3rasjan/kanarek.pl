@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:id="@+id/main"
@@ -12,40 +14,53 @@
         android:gravity="center_horizontal">
 
         <!-- Avatar -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/ic_user_placeholder"
-            android:scaleType="centerCrop"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/rounded_input" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="2dp" />
 
         <!-- Imię i nazwisko -->
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/username_text"
+            style="@style/TextAppearance.Material3.TitleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Jan Kowalski"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:textColor="?attr/colorOnSurface" />
 
         <!-- Email -->
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/email_text"
+            style="@style/TextAppearance.Material3.BodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="jan.kowalski@email.com"
-            android:textSize="16sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="24dp"/>
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginBottom="24dp" />
 
         <!-- Przycisk wyloguj -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/logout_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Wyloguj" />
+            android:text="WYLOGUJ"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp" />
+        <com.google.android.material.textview.MaterialTextView
+            android:text="© 2025 Kanarek.pl"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            android:layout_marginTop="64dp"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
     </LinearLayout>
 </ScrollView>

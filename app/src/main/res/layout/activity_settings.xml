@@ -60,4 +60,14 @@
         android:layout_height="wrap_content"
         android:text="Powrót"
         android:layout_marginTop="32dp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:text="© 2025 Kanarek.pl"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="12sp"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
 </LinearLayout>

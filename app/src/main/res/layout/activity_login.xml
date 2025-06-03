@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/background_light"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorSurface"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -10,46 +12,77 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            style="@style/KanarekHeader"
-            android:layout_width="242dp"
+        <!-- Nagłówek -->
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
-            android:text="@string/login_welcome" />
+            android:text="@string/login_welcome"
+            android:textColor="?attr/colorOnSurface" />
 
-        <TextView
-            android:text="@string/email_hint"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
+        <!-- E-mail -->
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/TextAppearance.Material3.BodySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:text="@string/email_hint"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
 
-        <EditText
-            android:id="@+id/email_input"
-            style="@style/KanarekEditText"
-            android:hint="Wprowadź swój e-mail"
-            android:inputType="textEmailAddress" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Wprowadź swój e-mail"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:text="@string/password_hint"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
+        <!-- Hasło -->
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/TextAppearance.Material3.BodySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:text="@string/password_hint"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:boxBackgroundMode="outline"
+            app:endIconMode="password_toggle"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
 
-        <EditText
-            android:id="@+id/password_input"
-            style="@style/KanarekEditText"
-            android:hint="Wprowadź swoje hasło"
-            android:inputType="textPassword" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Wprowadź swoje hasło"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Checkbox i link -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
 
             <CheckBox
                 android:id="@+id/remember_checkbox"
@@ -57,23 +90,60 @@
                 android:textSize="14sp"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/forgot_password_link"
+                style="@style/TextAppearance.Material3.BodySmall"
                 android:text="@string/forgot_password"
-                android:textColor="@color/accent_blue"
-                android:textSize="14sp"
-                android:gravity="end"
+                android:textColor="?attr/colorPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <Button
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="48dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:text="Nie masz konta?"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                android:layout_marginEnd="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/register_link"
+                android:text="Zarejestruj się"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/login_button"
-            style="@style/KanarekButton.Dark"
+            style="@style/Widget.Material3.Button"
             android:text="@string/login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="32dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:text="© 2025 Kanarek.pl"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            android:layout_marginTop="64dp"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
 
     </LinearLayout>
 </ScrollView>

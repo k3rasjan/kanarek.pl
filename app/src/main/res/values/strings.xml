@@ -8,7 +8,8 @@
     <string name="login_button">Zaloguj się</string>
     <string name="register_button">Zarejestruj się</string>
     <string name="map_button">Zobacz mapę zagrożeń</string>
-    <string name="footer_text">© 2025 Kanarek.pl</string>
+    <string name="footer_text">© 2025 Kanarek.pl </string>
+    <string name="names">Jakub Walczak, Mateusz Najsarek</string>
 
     <!-- Formularze -->
     <string name="email_hint">E-mail</string>

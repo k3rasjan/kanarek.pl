@@ -1,47 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="?attr/colorSurface"
+    android:gravity="center_horizontal"
+    android:baselineAligned="false">
 
-    <TextView
-        style="@style/KanarekHeader"
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/TextAppearance.Material3.HeadlineMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/home_title" />
+        android:text="@string/home_title"
+        android:textColor="?attr/colorOnSurface"
+        android:layout_marginBottom="8dp" />
 
-    <TextView
-        style="@style/KanarekSubheader"
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/home_subtitle" />
+        android:text="@string/home_subtitle"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginBottom="32dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/login_button"
-        style="@style/KanarekButton"
-        android:text="@string/login_button" />
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_button"
+        android:layout_marginBottom="12dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/register_button"
-        style="@style/KanarekButton"
-        android:text="@string/register_button" />
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/register_button"
+        android:layout_marginBottom="12dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/map_button"
-        style="@style/KanarekButton"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/map_button" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/footer_text"
         android:textSize="12sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:layout_marginTop="48dp"
-        android:layout_gravity="center"
-        android:textColor="@color/text_primary"
-        android:fontFamily="sans-serif"
+        android:fontFamily="sans-serif" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/names"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginTop="4dp" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/kanar_icon_red" />
 
 </LinearLayout>
