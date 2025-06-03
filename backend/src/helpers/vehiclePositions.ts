@@ -62,21 +62,22 @@ export async function getVehiclePositions(): Promise<IVehicle[]> {
     const root = await load("src/assets/gtfs/gtfs-realtime.proto");
     const FeedMessage = root.lookupType("transit_realtime.FeedMessage");
     
-    console.log("Response data length:", response.data.length);
     const message = FeedMessage.decode(new Uint8Array(response.data));
-    console.log("Decoded message:", message);
-    
     const feed = FeedMessage.toObject(message, {
-      longs: String,
-      enums: String,
-      bytes: String,
+      defaults: true,
+      arrays: true,
+      objects: true
     });
 
-    console.log("Feed object:", JSON.stringify(feed, null, 2));
+    if (!feed.entity || feed.entity.length === 0) {
+      throw new Error('NO_VEHICLE_DATA');
+    }
 
-    if (!feed || !feed.entity || !Array.isArray(feed.entity) || feed.entity.length === 0) {
-      console.error("No vehicle data available from ZTM server");
-      throw new Error("NO_VEHICLE_DATA");
+    if (feed.entity[0]?.vehicle?.position) {
+      console.log('Vehicle position data:', {
+        latitude: feed.entity[0].vehicle.position.latitude,
+        longitude: feed.entity[0].vehicle.position.longitude
+      });
     }
 
     return feed.entity.map((entity: any) => ({
@@ -109,13 +110,19 @@ export async function findMostLikelyVehicle(locations: Location[]): Promise<IVeh
   const trips = await prisma.trips.findMany();
 
   let bestMatch: { vehicle: IVehicle; score: number } | null = null;
+  const MAX_DISTANCE = 1000;
+  const MAX_TIME_DIFF = 5 * 60 * 1000;
 
   for (const vehicle of vehicles) {
-    const trip = trips.find((t) => t.trip_id == vehicle.tripId);
-    const shape = shapes.find((s) => s.shape_id == trip?.shape_id);
+    const trip = trips.find((t) => t.trip_id === vehicle.tripId);
+    if (!trip) continue;
+
+    const shape = shapes.find((s) => s.shape_id === trip.shape_id);
     if (!shape) continue;
 
     let totalDistance = 0;
+    let validLocations = 0;
+    
     for (const location of locations) {
       const distance = calculateDistance(
         location.lat,
@@ -123,52 +130,86 @@ export async function findMostLikelyVehicle(locations: Location[]): Promise<IVeh
         vehicle.lat,
         vehicle.long
       );
-      totalDistance += distance;
+      
+      if (distance <= MAX_DISTANCE) {
+        totalDistance += distance;
+        validLocations++;
+      }
     }
 
-    const averageDistance = totalDistance / locations.length;
-    let score = 1 / (1 + averageDistance);
+    if (validLocations === 0) continue;
 
-    const userVector = calculateVector(
-      locations[0].lat,
-      locations[0].long,
-      locations[locations.length - 1].lat,
-      locations[locations.length - 1].long
-    );
+    const averageDistance = totalDistance / validLocations;
+    let score = Math.max(0, 1 - (averageDistance / MAX_DISTANCE));
 
-    const closestPoints = shape.shape_points
-      .map(point => ({
-        point,
-        distance: calculateDistance(
-          vehicle.lat,
-          vehicle.long,
-          parseFloat(point.shape_pt_lat),
-          parseFloat(point.shape_pt_lon)
-        )
-      }))
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 2);
-
-    if (closestPoints.length === 2) {
-      const vehicleVector = calculateVector(
-        parseFloat(closestPoints[0].point.shape_pt_lat),
-        parseFloat(closestPoints[0].point.shape_pt_lon),
-        parseFloat(closestPoints[1].point.shape_pt_lat),
-        parseFloat(closestPoints[1].point.shape_pt_lon)
+    if (locations.length >= 2) {
+      const userVector = calculateVector(
+        locations[0].lat,
+        locations[0].long,
+        locations[locations.length - 1].lat,
+        locations[locations.length - 1].long
       );
 
-      const vectorSimilarity = calculateVectorSimilarity(userVector, vehicleVector);
-      score *= (1 + vectorSimilarity);
+      const closestPoints = shape.shape_points
+        .map(point => ({
+          point,
+          distance: calculateDistance(
+            vehicle.lat,
+            vehicle.long,
+            parseFloat(point.shape_pt_lat),
+            parseFloat(point.shape_pt_lon)
+          )
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 2);
+
+      if (closestPoints.length === 2) {
+        const vehicleVector = calculateVector(
+          parseFloat(closestPoints[0].point.shape_pt_lat),
+          parseFloat(closestPoints[0].point.shape_pt_lon),
+          parseFloat(closestPoints[1].point.shape_pt_lat),
+          parseFloat(closestPoints[1].point.shape_pt_lon)
+        );
+
+        const vectorSimilarity = calculateVectorSimilarity(userVector, vehicleVector);
+        score *= (1 + vectorSimilarity) / 2;
+      }
     }
+
+    const timeDiff = Math.abs(Date.now() - locations[locations.length - 1].timestamp);
+    const timeScore = Math.max(0, 1 - (timeDiff / MAX_TIME_DIFF));
+    score *= timeScore;
 
     if (!bestMatch || score > bestMatch.score) {
       bestMatch = { vehicle, score };
     }
   }
 
-  console.log(bestMatch);
+  if (!bestMatch) {
+    let closestVehicle: { vehicle: IVehicle; distance: number } | null = null;
+    
+    for (const vehicle of vehicles) {
+      let totalDistance = 0;
+      for (const location of locations) {
+        const distance = calculateDistance(
+          location.lat,
+          location.long,
+          vehicle.lat,
+          vehicle.long
+        );
+        totalDistance += distance;
+      }
+      const averageDistance = totalDistance / locations.length;
+      
+      if (!closestVehicle || averageDistance < closestVehicle.distance) {
+        closestVehicle = { vehicle, distance: averageDistance };
+      }
+    }
+    
+    return closestVehicle?.vehicle || null;
+  }
 
-  return bestMatch?.vehicle || null;
+  return bestMatch.vehicle;
 }
 
 export async function reportInspector(vehicleId: string): Promise<void> {
@@ -214,7 +255,7 @@ export async function getVehiclesWithInspectorInfo(): Promise<IVehicle[]> {
     return vehiclesWithInspector;
   } catch (error) {
     if (error instanceof Error && error.message === "NO_VEHICLE_DATA") {
-      return [];
+      throw error;
     }
     throw error;
   }

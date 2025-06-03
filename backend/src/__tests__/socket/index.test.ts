@@ -3,6 +3,9 @@ import { createServer } from 'http';
 import { initializeSocket } from '@socket/index';
 import { getVehiclesWithInspectorInfo } from '@helpers/vehiclePositions';
 import { vehicleStore } from '@helpers/stores';
+import { AddressInfo } from 'net';
+import Client from 'socket.io-client';
+import { getVehiclePositions } from '@helpers/vehiclePositions';
 
 jest.mock('@helpers/vehiclePositions');
 jest.mock('@helpers/stores');
@@ -10,37 +13,26 @@ jest.mock('@helpers/stores');
 describe('Socket Server', () => {
   let httpServer: ReturnType<typeof createServer>;
   let io: Server;
-  let clientSocket: any;
+  let clientSocket: ReturnType<typeof Client>;
 
-  beforeEach((done) => {
+  beforeAll((done) => {
     httpServer = createServer();
     io = new Server(httpServer);
     initializeSocket(io);
     httpServer.listen(() => {
-      const port = (httpServer.address() as any).port;
-      const { io: Client } = require('socket.io-client');
-      clientSocket = Client(`http://localhost:${port}`, {
-        transports: ['websocket'],
-        forceNew: true,
-        reconnection: false,
-        timeout: 10000
-      });
-      clientSocket.on('connect', () => {
-        done();
-      });
+      const port = (httpServer.address() as AddressInfo).port;
+      clientSocket = Client(`http://localhost:${port}`);
+      clientSocket.on('connect', done);
     });
-    jest.clearAllMocks();
   });
 
-  afterEach((done) => {
-    if (clientSocket.connected) {
-      clientSocket.disconnect();
-    }
-    io.close(() => {
-      httpServer.close(() => {
-        done();
-      });
-    });
+  afterAll(() => {
+    io.close();
+    clientSocket.close();
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should initialize socket server', () => {
@@ -60,7 +52,8 @@ describe('Socket Server', () => {
       }
     ];
 
-    (getVehiclesWithInspectorInfo as jest.Mock).mockResolvedValueOnce(mockVehicles);
+    (getVehiclePositions as jest.Mock).mockResolvedValueOnce(mockVehicles);
+    (vehicleStore.getVehicles as jest.Mock).mockReturnValue([]);
 
     clientSocket.on('vehiclePositions', (data: any) => {
       try {
@@ -73,14 +66,27 @@ describe('Socket Server', () => {
   }, 15000);
 
   it('should emit error status when ZTM server is unavailable', (done) => {
-    (getVehiclesWithInspectorInfo as jest.Mock).mockRejectedValueOnce(new Error('NO_VEHICLE_DATA'));
+    const mockVehicles = [
+      {
+        id: '1',
+        tripId: '1_500016^Y+',
+        routeId: 'PKS',
+        lat: 52.354273180271,
+        long: 16.678778285631,
+        directionId: 1,
+        hasInspector: false
+      }
+    ];
+
+    (getVehiclePositions as jest.Mock).mockRejectedValueOnce(new Error('NO_VEHICLE_DATA'));
+    (vehicleStore.getVehicles as jest.Mock).mockReturnValue(mockVehicles);
 
     clientSocket.on('vehiclePositions', (data: any) => {
       try {
         expect(data).toEqual({
           status: 'error',
           message: 'ZTM server is not providing vehicle data at the moment',
-          data: []
+          data: mockVehicles
         });
         done();
       } catch (error) {
