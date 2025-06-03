@@ -1,53 +1,82 @@
-
-import { MapContainer, TileLayer, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from './Map.module.css';
+import io from 'socket.io-client';
 
-type Report = {
-  id: number;
-  location: [number, number];
-  description: string;
-  timestamp: string;
+type Vehicle = {
+  id: string;
+  tripId: string;
+  routeId: string;
+  long: number;
+  lat: number;
+  directionId: string;
+  hasInspector: boolean;
+  inspectorReportedAt?: string;
 };
 
-export default function Map({ reports }: { reports: Report[] }) {
-  const center: [number, number] = [52.3925, 16.9357]; // środek domyślny
+const defaultIcon = new Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
-  return (
-      <MapContainer center={center} zoom={13} scrollWheelZoom className={styles.mapContainer}>
-        <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap'
-        />
-        {reports.map((report) => (
-            <Circle
-                key={report.id}
-                center={report.location}
-                radius={500}
-                pathOptions={{ fillColor: 'red', fillOpacity: 0.4, color: 'red' }}
-            />
-        ))}
-      </MapContainer>
-
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+const inspectorIcon = new Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
 export default function Map() {
-  return (
-    <>
-      <div className="w-screen h-screen">
-        <MapContainer
-          center={[52.4057, 16.9313]}
-          zoom={20}
-          scrollWheelZoom={true}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={[51.505, -0.09]}>
-            <Popup>This is a custom marker popup</Popup>
-          </Marker>
-        </MapContainer>
-        <p className="">sigma</p>
-      </div>
-    </>
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const center: [number, number] = [52.3925, 16.9357];
 
+  useEffect(() => {
+    const socket = io('http://localhost:8080');
+
+    socket.on('vehiclePositions', (data) => {
+      if (data.status === 'success') {
+        setVehicles(data.data);
+      }
+    });
+
+    socket.on('vehicleUpdate', (data) => {
+      setVehicles(data);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  return (
+    <MapContainer center={center} zoom={13} scrollWheelZoom className={styles.mapContainer}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; OpenStreetMap'
+      />
+      {vehicles.map((vehicle) => (
+        <Marker
+          key={vehicle.id}
+          position={[vehicle.lat, vehicle.long]}
+          icon={vehicle.hasInspector ? inspectorIcon : defaultIcon}
+        >
+          <Popup>
+            <div>
+              <p>Linia: {vehicle.routeId}</p>
+              <p>Kierunek: {vehicle.directionId}</p>
+              {vehicle.hasInspector && <p style={{ color: 'red' }}>Kontroler biletów!</p>}
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
   );
 }

@@ -214,6 +214,7 @@ export async function findMostLikelyVehicle(locations: Location[]): Promise<IVeh
 
 export async function reportInspector(vehicleId: string): Promise<void> {
   const now = new Date();
+  console.log("Reporting inspector for vehicle:", vehicleId);
   await prisma.inspectors.create({
     data: {
       vehicleId,

@@ -1,20 +1,118 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ReportPage.css";
 import { useNavigate } from "react-router-dom";
 
+type Location = {
+  lat: number;
+  long: number;
+  timestamp: number;
+};
+
+type Vehicle = {
+  id: string;
+  tripId: string;
+  routeId: string;
+  long: number;
+  lat: number;
+  directionId: string;
+  hasInspector: boolean;
+};
 
 export default function ReportPage() {
     const navigate = useNavigate();
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [detectedVehicle, setDetectedVehicle] = useState<Vehicle | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const [stop, setStop] = useState("");
-    const [line, setLine] = useState("");
-    const [count, setCount] = useState("");
+    const getCurrentLocation = (): Promise<Location> => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation is not supported by your browser'));
+                return;
+            }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log({ stop, line, count });
-        // TODO: wyślij do API
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        lat: position.coords.latitude,
+                        long: position.coords.longitude,
+                        timestamp: Date.now()
+                    });
+                },
+                (error) => {
+                    reject(error);
+                }
+            );
+        });
     };
+
+    const findVehicle = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            const firstLocation = await getCurrentLocation();
+            setLocations([firstLocation]);
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const secondLocation = await getCurrentLocation();
+            setLocations(prev => [...prev, secondLocation]);
+
+            const response = await fetch('http://localhost:8080/api/inspector/find-vehicle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    locations: [firstLocation, secondLocation]
+                })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                setDetectedVehicle(data.data);
+            } else {
+                setError(data.message || 'Nie udało się znaleźć pojazdu');
+            }
+        } catch (err) {
+            setError('Wystąpił błąd podczas wykrywania pojazdu');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!detectedVehicle) return;
+
+        try {
+            const response = await fetch('http://localhost:8080/api/inspector/report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    vehicleId: detectedVehicle.id
+                })
+            });
+
+            if (response.ok) {
+                navigate('/mapa');
+            } else {
+                setError('Wystąpił błąd podczas wysyłania zgłoszenia');
+            }
+        } catch (err) {
+            setError('Wystąpił błąd podczas wysyłania zgłoszenia');
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        findVehicle();
+    }, []);
 
     return (
         <div className="report-wrapper">
@@ -23,37 +121,21 @@ export default function ReportPage() {
             <form onSubmit={handleSubmit} className="report-form">
                 <h1>Zgłoś kanara</h1>
 
-                <label>
-                    Przystanek
-                    <input
-                        type="text"
-                        placeholder="Gorczyn PKM"
-                        value={stop}
-                        onChange={(e) => setStop(e.target.value)}
-                    />
-                </label>
-
-                <label>
-                    Linia
-                    <input
-                        type="text"
-                        placeholder="17"
-                        value={line}
-                        onChange={(e) => setLine(e.target.value)}
-                    />
-                </label>
-
-                <label>
-                    Ilość
-                    <input
-                        type="number"
-                        placeholder="2"
-                        value={count}
-                        onChange={(e) => setCount(e.target.value)}
-                    />
-                </label>
-
-                <button type="submit">Wyślij zgłoszenie</button>
+                {isLoading ? (
+                    <p>Wykrywanie pojazdu...</p>
+                ) : error ? (
+                    <p style={{ color: 'red' }}>{error}</p>
+                ) : detectedVehicle ? (
+                    <>
+                        <div style={{ marginBottom: '1rem' }}>
+                            <p><strong>Linia:</strong> {detectedVehicle.routeId}</p>
+                            <p><strong>Kierunek:</strong> {detectedVehicle.directionId}</p>
+                        </div>
+                        <button type="submit">Potwierdź zgłoszenie</button>
+                    </>
+                ) : (
+                    <p>Nie znaleziono pojazdu</p>
+                )}
             </form>
         </div>
     );
