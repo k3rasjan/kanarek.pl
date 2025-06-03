@@ -4,29 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <AutoCompleteTextView
-        android:id="@+id/station_search_input"
+    <LinearLayout
+        android:id="@+id/search_bar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Szukaj przystanku..."
         android:layout_alignParentTop="true"
-        android:layout_margin="12dp"
-        android:layout_marginEnd="60dp"
-        android:background="@drawable/rounded_input"
-        android:padding="12dp" />
+        android:orientation="horizontal"
+        android:layout_margin="12dp">
 
-    <ImageButton
-        android:id="@+id/user_button"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_alignTop="@id/station_search_input"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/rounded_input"
-        android:contentDescription="Menu"
-        android:src="@drawable/ic_menu"
-        android:scaleType="centerInside" />
+        <AutoCompleteTextView
+            android:id="@+id/station_search_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Szukaj przystanku..."
+            android:background="@drawable/rounded_input"
+            android:padding="12dp"/>
+
+        <ImageButton
+            android:id="@+id/user_button"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_input"
+            android:contentDescription="Menu"
+            android:src="@drawable/ic_menu"
+            android:scaleType="centerInside"/>
+    </LinearLayout>
 
 
     <fragment
@@ -34,7 +38,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/station_search_input"
+        android:layout_below="@+id/search_bar_container"
         />
 
 

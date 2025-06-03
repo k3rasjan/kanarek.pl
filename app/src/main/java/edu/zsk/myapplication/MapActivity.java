@@ -1,8 +1,12 @@
 package edu.zsk.myapplication;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -13,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,6 +35,8 @@ import java.util.Map;
 import retrofit2.*;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import android.content.Intent;
+
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private final Map<String, LatLng> stationCoordinates = new HashMap<String, LatLng>() {{
@@ -45,6 +52,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private final List<LocationData> locations = new ArrayList<>();
     private InspectorApi api;
 
+    private String lastSelectedStop = "";
+    private String lastSelectedLine = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +63,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080")
+                .baseUrl("http://192.168.1.48:8080")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(InspectorApi.class);
@@ -68,6 +78,44 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+        findViewById(R.id.user_button).setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(this, v);
+            popup.getMenu().add("Moje konto");
+            popup.getMenu().add("Ustawienia");
+            popup.getMenu().add("Wyloguj");
+
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getTitle().toString()) {
+                    case "Moje konto":
+                        startActivity(new Intent(this, MyAccountActivity.class));
+                        return true;
+                    case "Wyloguj":
+                        Toast.makeText(this, "Wylogowano", Toast.LENGTH_SHORT).show();
+                        // np. finish(); lub startActivity(new Intent(this, LoginActivity.class));
+                        return true;
+                    case "Ustawienia":
+                        startActivity(new Intent(this, SettingsActivity.class));
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            popup.show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 100);
+                }
+            }
+            new Handler().postDelayed(() -> {
+                new AlertDialog.Builder(MapActivity.this)
+                        .setTitle("Czy to test?")
+                        .setMessage("Testujemy dialog")
+                        .setPositiveButton("Tak", (d, w) -> showKanarNotification("Test", "123"))
+                        .setNegativeButton("Nie", null)
+                        .show();
+            }, 3000);
+        });
     }
 
     private void setupStationSearch() {
@@ -89,6 +137,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void checkVehicleProcess() {
+        Log.d("DEBUG", "Rozpoczynam checkVehicleProcess");
         locations.clear();
 
         getLocation(loc1 -> {
@@ -104,6 +153,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void getLocation(LocationCallback callback) {
+        Log.d("DEBUG", "getLocation called");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -125,29 +175,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void sendFindVehicleRequest() {
+        Log.d("DEBUG", "sendFindVehicleRequest started");
         FindVehicleRequest request = new FindVehicleRequest(locations);
 
         api.findVehicle(request).enqueue(new Callback<Vehicle>() {
             @Override
             public void onResponse(Call<Vehicle> call, Response<Vehicle> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d("DEBUG", "Odpowiedź API: code = " + response.code());
                     Vehicle vehicle = response.body();
 
                     LatLng vehicleLatLng = new LatLng(vehicle.lat, vehicle.long_);
 
                     runOnUiThread(() -> {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(vehicleLatLng, 15));
+                        Log.d("DEBUG", "Pokaż dialog potwierdzenia");
 
                         new AlertDialog.Builder(MapActivity.this)
                                 .setTitle("Czy to ten pojazd?")
                                 .setMessage("ID: " + vehicle.id + "\nTrasa: " + vehicle.routeId)
-                                .setPositiveButton("Tak", (dialog, which) -> sendReport(vehicle.id))
-                                .setNegativeButton("Nie", null)
+                                .setPositiveButton("Tak", (dialog, which) -> {
+                                    Log.d("DEBUG", "Użytkownik kliknął TAK – wysyłanie reportu");
+                                    sendReport(vehicle.id);
+                                })
+                                .setNegativeButton("Nie", (dialog, which) -> {
+                                    Log.d("DEBUG", "Użytkownik kliknął NIE");
+                                })
                                 .show();
                     });
 
                 } else {
-                    Log.e("API", "Błąd odpowiedzi");
+                    Log.e("API", "Błąd odpowiedzi: " + response.code());
+                    try {
+                        Log.e("API", "Błąd treść: " + response.errorBody().string());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -159,12 +221,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void sendReport(String vehicleId) {
+        Log.d("DEBUG", "sendReport() called");
         ReportRequest report = new ReportRequest(vehicleId);
+
         api.reportVehicle(report).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                runOnUiThread(() ->
-                        Toast.makeText(MapActivity.this, "Zgłoszono pojazd", Toast.LENGTH_SHORT).show());
+                Log.d("DEBUG", "Report wysłany pomyślnie");
+                runOnUiThread(() -> {
+                    Toast.makeText(MapActivity.this, "Zgłoszono pojazd", Toast.LENGTH_SHORT).show();
+                    showKanarNotification(lastSelectedStop, lastSelectedLine);
+                });
             }
 
             @Override
@@ -188,6 +255,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         submit.setOnClickListener(v -> {
             int checkedId = typeGroup.getCheckedRadioButtonId();
+            lastSelectedStop = ((AutoCompleteTextView) findViewById(R.id.station_search_input)).getText().toString();
+            lastSelectedLine = lineSpinner.getSelectedItem().toString();
             if (checkedId == -1) {
                 Toast.makeText(this, "Wybierz typ pojazdu", Toast.LENGTH_SHORT).show();
                 return;
@@ -195,7 +264,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             String type = ((RadioButton) view.findViewById(checkedId)).getText().toString();
             String line = lineSpinner.getSelectedItem().toString();
-            String count = "2"; // domyślnie 2
+            String count = "2";
 
             Toast.makeText(this, "Zgłoszono: " + type + " " + line + ", kanarów: " + count, Toast.LENGTH_SHORT).show();
 
@@ -247,7 +316,31 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    private void showKanarNotification(String stop, String line) {
+        Log.d("DEBUG", "Notification triggered for stop: " + stop + ", line: " + line);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId = "kanar_alert_channel";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    channelId, "Kanar Alert", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Powiadomienia o kanarach");
+            manager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle("🚨 UWAGA KANAR!")
+                .setContentText("UWAGA na " + stop + " w " + line + " KANAR!")
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setAutoCancel(true);
+
+        manager.notify(1, builder.build());
+    }
+
     private interface LocationCallback {
         void onLocation(Location location);
     }
 }
+
