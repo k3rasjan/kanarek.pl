@@ -20,9 +20,9 @@ type Vehicle = {
 
 export default function ReportPage() {
     const navigate = useNavigate();
-    const [locations, setLocations] = useState<Location[]>([]);
     const [detectedVehicle, setDetectedVehicle] = useState<Vehicle | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingStep, setLoadingStep] = useState<'initial' | 'locating' | 'detecting' | 'submitting'>('initial');
     const [error, setError] = useState<string | null>(null);
 
     const getCurrentLocation = (): Promise<Location> => {
@@ -51,14 +51,13 @@ export default function ReportPage() {
         try {
             setIsLoading(true);
             setError(null);
+            setLoadingStep('locating');
 
             const firstLocation = await getCurrentLocation();
-            setLocations([firstLocation]);
-
+            setLoadingStep('detecting');
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             const secondLocation = await getCurrentLocation();
-            setLocations(prev => [...prev, secondLocation]);
 
             const response = await fetch('http://localhost:8080/api/inspector/find-vehicle', {
                 method: 'POST',
@@ -81,6 +80,7 @@ export default function ReportPage() {
             console.error(err);
         } finally {
             setIsLoading(false);
+            setLoadingStep('initial');
         }
     };
 
@@ -89,6 +89,10 @@ export default function ReportPage() {
         if (!detectedVehicle) return;
 
         try {
+            setIsLoading(true);
+            setLoadingStep('submitting');
+            setError(null);
+
             const response = await fetch('http://localhost:8080/api/inspector/report', {
                 method: 'POST',
                 headers: {
@@ -100,19 +104,42 @@ export default function ReportPage() {
             });
 
             if (response.ok) {
-                navigate('/mapa');
+                navigate('/mapa', { 
+                    state: { 
+                        focusVehicle: {
+                            lat: detectedVehicle.lat,
+                            long: detectedVehicle.long
+                        }
+                    }
+                });
             } else {
                 setError('Wystąpił błąd podczas wysyłania zgłoszenia');
             }
         } catch (err) {
             setError('Wystąpił błąd podczas wysyłania zgłoszenia');
             console.error(err);
+        } finally {
+            setIsLoading(false);
+            setLoadingStep('initial');
         }
     };
 
     useEffect(() => {
         findVehicle();
     }, []);
+
+    const getLoadingMessage = () => {
+        switch (loadingStep) {
+            case 'locating':
+                return 'Pobieranie lokalizacji...';
+            case 'detecting':
+                return 'Wykrywanie pojazdu...';
+            case 'submitting':
+                return 'Wysyłanie zgłoszenia...';
+            default:
+                return 'Ładowanie...';
+        }
+    };
 
     return (
         <div className="report-wrapper">
@@ -122,7 +149,10 @@ export default function ReportPage() {
                 <h1>Zgłoś kanara</h1>
 
                 {isLoading ? (
-                    <p>Wykrywanie pojazdu...</p>
+                    <div className="loading-container">
+                        <div className="loading-spinner"></div>
+                        <p className="loading-text">{getLoadingMessage()}</p>
+                    </div>
                 ) : error ? (
                     <p style={{ color: 'red' }}>{error}</p>
                 ) : detectedVehicle ? (

@@ -1,21 +1,22 @@
 import './MapPage.css';
 import Map from '../../components/Map/Map';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-
+import { useState} from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const handleLogout = () => {
     localStorage.clear();
     window.location.href = '/login';
 };
 
-
 export default function MapPage() {
     const [showMenu, setShowMenu] = useState(false);
+    const location = useLocation();
+    const focusVehicle = location.state?.focusVehicle;
     const toggleMenu = () => setShowMenu(prev => !prev);
+
     return (
         <div className="map-page-container">
-            <Map/>
+            <Map focusVehicle={focusVehicle}/>
 
             <aside className="feed-panel">
                 <h2>Ostatnie zgłoszenia</h2>

@@ -41,9 +41,12 @@ class VehicleStore {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       for (const [id, vehicle] of this.vehicles.entries()) {
         if (vehicle.inspectorReportedAt && new Date(vehicle.inspectorReportedAt) < fiveMinutesAgo) {
-          this.vehicles.delete(id);
+          vehicle.hasInspector = false;
+          vehicle.inspectorReportedAt = undefined;
+          this.pendingUpdates.add(id);
         }
       }
+      this.emitUpdates();
     }, 5 * 60 * 1000);
   }
 

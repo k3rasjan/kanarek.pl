@@ -1,54 +1,83 @@
-# React + TypeScript + Vite
+# Kanarek.pl Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for tracking and reporting ticket inspectors on public transportation in Poznań.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Real-time vehicle tracking on an interactive map
+- Inspector reporting system
+- Automatic vehicle detection based on user location
+- Responsive design for mobile and desktop
+- Real-time updates using WebSocket
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 18
+- TypeScript
+- Leaflet for maps
+- Socket.IO client
+- CSS Modules for styling
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Page components
+│   ├── assets/        # Static assets
+│   ├── utils/         # Utility functions
+│   └── socket.ts      # Socket.IO client setup
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Key Components
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Map Component
+- Displays real-time vehicle positions
+- Shows inspector status with color-coded markers
+- Handles user location tracking
+- Updates vehicle positions every 5 seconds
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### Report Page
+- Detects nearby vehicles using geolocation
+- Allows reporting ticket inspectors
+- Provides feedback on report status
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+npm install
 ```
+
+2. Start development server:
+```bash
+npm run dev
+```
+
+3. Build for production:
+```bash
+npm run build
+```
+
+## Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_URL=http://localhost:8080
+```
+
+## Development
+
+- The application uses Vite for fast development
+- Hot Module Replacement (HMR) is enabled
+- TypeScript for type safety
+- ESLint and Prettier for code formatting
+
+## Production
+
+- Optimized builds with Vite
+- Code splitting for better performance
+- Minified assets
+- Environment-specific configurations

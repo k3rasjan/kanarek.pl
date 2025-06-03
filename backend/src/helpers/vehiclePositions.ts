@@ -73,22 +73,45 @@ export async function getVehiclePositions(): Promise<IVehicle[]> {
       throw new Error('NO_VEHICLE_DATA');
     }
 
-    if (feed.entity[0]?.vehicle?.position) {
-      console.log('Vehicle position data:', {
-        latitude: feed.entity[0].vehicle.position.latitude,
-        longitude: feed.entity[0].vehicle.position.longitude
-      });
-    }
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const inspectorReports = await prisma.inspectors.findMany({
+      where: {
+        reportedAt: {
+          gte: fiveMinutesAgo,
+        },
+      },
+    });
 
-    return feed.entity.map((entity: any) => ({
-      id: entity.vehicle.vehicle.id,
-      tripId: entity.vehicle.trip.tripId,
-      routeId: entity.vehicle.trip.routeId,
-      long: entity.vehicle.position.longitude,
-      lat: entity.vehicle.position.latitude,
-      directionId: entity.vehicle.trip.directionId,
-      hasInspector: false,
-    }));
+    const inspectorReportsMap = new Map(
+      inspectorReports.map(report => [report.vehicleId, report.reportedAt])
+    );
+
+    const vehicles = feed.entity.map((entity: any) => {
+      const vehicleId = entity.vehicle.vehicle.id;
+      const inspectorReportedAt = inspectorReportsMap.get(vehicleId);
+      
+      const existingVehicle = vehicleStore.getVehicle(vehicleId);
+      const hasInspector = existingVehicle?.hasInspector || !!inspectorReportedAt;
+
+      return {
+        id: vehicleId,
+        tripId: entity.vehicle.trip.tripId,
+        routeId: entity.vehicle.trip.routeId,
+        long: entity.vehicle.position.longitude,
+        lat: entity.vehicle.position.latitude,
+        directionId: entity.vehicle.trip.directionId,
+        hasInspector,
+        inspectorReportedAt: inspectorReportedAt?.toISOString() || existingVehicle?.inspectorReportedAt
+      };
+    });
+
+    vehicles.forEach((vehicle: IVehicle) => {
+      vehicleStore.updateVehicle(vehicle);
+    });
+
+    vehicleStore.emitUpdates();
+
+    return vehicles;
   } catch (error) {
     if (error instanceof Error && error.message === "NO_VEHICLE_DATA") {
       console.error("ZTM server is not providing vehicle data at the moment");
@@ -108,6 +131,8 @@ export async function findMostLikelyVehicle(locations: Location[]): Promise<IVeh
   });
 
   const trips = await prisma.trips.findMany();
+
+  console.log('locations:', locations);
 
   let bestMatch: { vehicle: IVehicle; score: number } | null = null;
   const MAX_DISTANCE = 1000;
@@ -205,9 +230,11 @@ export async function findMostLikelyVehicle(locations: Location[]): Promise<IVeh
         closestVehicle = { vehicle, distance: averageDistance };
       }
     }
-    
+    console.log('closestVehicle:', closestVehicle);
     return closestVehicle?.vehicle || null;
   }
+
+  console.log('bestMatch:', bestMatch);
 
   return bestMatch.vehicle;
 }

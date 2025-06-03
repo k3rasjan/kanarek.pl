@@ -1,5 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useState, useCallback } from 'react';
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from './Map.module.css';
@@ -15,6 +15,31 @@ type Vehicle = {
   hasInspector: boolean;
   inspectorReportedAt?: string;
 };
+
+type MapProps = {
+  focusVehicle?: {
+    lat: number;
+    long: number;
+  };
+};
+
+type UserLocation = {
+  lat: number;
+  long: number;
+  timestamp: number;
+};
+
+function MapFocus({ focusVehicle }: MapProps) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (focusVehicle) {
+      map.setView([focusVehicle.lat, focusVehicle.long], 16);
+    }
+  }, [focusVehicle, map]);
+
+  return null;
+}
 
 const defaultIcon = new Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -34,9 +59,68 @@ const inspectorIcon = new Icon({
   shadowSize: [41, 41]
 });
 
-export default function Map() {
+const userIcon = new Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+export default function Map({ focusVehicle }: MapProps) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const center: [number, number] = [52.3925, 16.9357];
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const getCurrentLocation = useCallback((): Promise<UserLocation> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by your browser'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+            timestamp: Date.now()
+          };
+          console.log('Received location:', location);
+          resolve(location);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          reject(error);
+        }
+      );
+    });
+  }, []);
+
+  const updateLocation = useCallback(async () => {
+    try {
+      const location = await getCurrentLocation();
+      setUserLocation(location);
+      setLocationError(null);
+    } catch (error) {
+      if (error instanceof GeolocationPositionError) {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError('Please enable location access in your browser settings');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError('Location information is unavailable');
+            break;
+          case error.TIMEOUT:
+            setLocationError('Location request timed out');
+            break;
+          default:
+            setLocationError('An unknown error occurred');
+        }
+      }
+    }
+  }, [getCurrentLocation]);
 
   useEffect(() => {
     const socket = io('http://localhost:8080');
@@ -56,12 +140,43 @@ export default function Map() {
     };
   }, []);
 
+  useEffect(() => {
+    updateLocation();
+    const intervalId = setInterval(updateLocation, 30000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [updateLocation]);
+  
+  const defaultCenter: [number, number] = [52.3985, 17.2281];
+
   return (
-    <MapContainer center={center} zoom={13} scrollWheelZoom className={styles.mapContainer}>
+    <MapContainer
+      center={userLocation ? [userLocation.lat, userLocation.long] : defaultCenter} 
+      zoom={13}
+      scrollWheelZoom
+      className={styles.mapContainer}
+    >
+      {locationError && <div className={styles.locationError}>{locationError}</div>}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; OpenStreetMap'
       />
+      <MapFocus focusVehicle={focusVehicle} />
+      {userLocation && (
+        <Marker
+          position={[userLocation.lat, userLocation.long]}
+          icon={userIcon}
+        >
+          <Popup>
+            <div>
+              <p>Twoja lokalizacja</p>
+              <p>Ostatnia aktualizacja: {new Date(userLocation.timestamp).toLocaleTimeString()}</p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
       {vehicles.map((vehicle) => (
         <Marker
           key={vehicle.id}
@@ -72,6 +187,8 @@ export default function Map() {
             <div>
               <p>Linia: {vehicle.routeId}</p>
               <p>Kierunek: {vehicle.directionId}</p>
+              <p>ID: {vehicle.tripId}</p>
+              <p>Has inspector: {vehicle.hasInspector.toString()}</p>
               {vehicle.hasInspector && <p style={{ color: 'red' }}>Kontroler biletów!</p>}
             </div>
           </Popup>
