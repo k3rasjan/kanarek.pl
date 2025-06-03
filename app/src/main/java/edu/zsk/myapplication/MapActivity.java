@@ -12,6 +12,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -37,8 +40,24 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.content.Intent;
 
+import edu.zsk.myapplication.VehicleResponse;
+
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private BitmapDescriptor getResizedIcon(int drawableId, int width, int height) {
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), drawableId);
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return BitmapDescriptorFactory.fromBitmap(scaledBitmap);
+    }
+
+    private boolean isTram(String routeId) {
+        try {
+            int route = Integer.parseInt(routeId);
+            return route >= 1 && route <= 100;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     private final Map<String, LatLng> stationCoordinates = new HashMap<String, LatLng>() {{
         put("Rondo Kaponiera", new LatLng(52.4064, 16.9115));
         put("Most Teatralny", new LatLng(52.4101, 16.9183));
@@ -63,7 +82,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.48:8080")
+                .baseUrl("http://192.168.1.48:8080/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(InspectorApi.class);
@@ -107,14 +126,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 100);
                 }
             }
-            new Handler().postDelayed(() -> {
-                new AlertDialog.Builder(MapActivity.this)
-                        .setTitle("Czy to test?")
-                        .setMessage("Testujemy dialog")
-                        .setPositiveButton("Tak", (d, w) -> showKanarNotification("Test", "123"))
-                        .setNegativeButton("Nie", null)
-                        .show();
-            }, 3000);
+
         });
     }
 
@@ -146,6 +158,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             new Handler().postDelayed(() -> {
                 getLocation(loc2 -> {
                     locations.add(new LocationData(loc2.getLongitude(), loc2.getLatitude(), System.currentTimeMillis() / 1000));
+                    Log.d("API", "Próbuję wysłać request do find-vehicle");
                     sendFindVehicleRequest();
                 });
             }, 2000);
@@ -178,12 +191,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("DEBUG", "sendFindVehicleRequest started");
         FindVehicleRequest request = new FindVehicleRequest(locations);
 
-        api.findVehicle(request).enqueue(new Callback<Vehicle>() {
+        api.findVehicle(request).enqueue(new Callback<VehicleResponse>() {
             @Override
-            public void onResponse(Call<Vehicle> call, Response<Vehicle> response) {
+            public void onResponse(Call<VehicleResponse> call, Response<VehicleResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("DEBUG", "Odpowiedź API: code = " + response.code());
-                    Vehicle vehicle = response.body();
+                    Vehicle vehicle = response.body().data;
 
                     LatLng vehicleLatLng = new LatLng(vehicle.lat, vehicle.long_);
 
@@ -214,7 +227,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
 
             @Override
-            public void onFailure(Call<Vehicle> call, Throwable t) {
+            public void onFailure(Call<VehicleResponse> call, Throwable t) {
                 Log.e("API", "Błąd: " + t.getMessage());
             }
         });
@@ -307,14 +320,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.4027, 16.9124), 13));
                     Toast.makeText(this, "Nie udało się pobrać lokalizacji", Toast.LENGTH_SHORT).show();
                 }
+                fetchAndDisplayAllVehicles();
             });
 
         } else {
 
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.4027, 16.9124), 13));
             Toast.makeText(this, "Brak uprawnień do lokalizacji", Toast.LENGTH_SHORT).show();
+            fetchAndDisplayAllVehicles();
         }
     }
+    private void fetchAndDisplayAllVehicles() {
+        api.getAllVehicles().enqueue(new Callback<VehicleListResponse>() {
+            @Override
+            public void onResponse(Call<VehicleListResponse> call, Response<VehicleListResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Vehicle> vehicles = response.body().data;
+                    BitmapDescriptor tramIcon = getResizedIcon(R.drawable.tram_icon, 64, 64);
+                    BitmapDescriptor busIcon = getResizedIcon(R.drawable.bus_icon, 64, 64);
+                    for (Vehicle vehicle : vehicles) {
+                        LatLng position = new LatLng(vehicle.lat, vehicle.long_);
+
+                        BitmapDescriptor icon = isTram(vehicle.routeId) ? tramIcon : busIcon;
+
+                        mMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .title("Linia " + vehicle.routeId + " (ID: " + vehicle.id + ")")
+                                .icon(icon));
+                    }
+                } else {
+                    Log.e("API", "Błąd odpowiedzi (pojazdy): " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VehicleListResponse> call, Throwable t) {
+                Log.e("API", "Błąd: " + t.getMessage());
+            }
+        });
+    }
+
 
     private void showKanarNotification(String stop, String line) {
         Log.d("DEBUG", "Notification triggered for stop: " + stop + ", line: " + line);
@@ -327,7 +372,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             channel.setDescription("Powiadomienia o kanarach");
             manager.createNotificationChannel(channel);
         }
-
+        if (stop == null || stop.trim().isEmpty()) stop = "nieznanym przystanku";
+        if (line == null || line.trim().isEmpty()) line = "nieznanej linii";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("🚨 UWAGA KANAR!")
@@ -343,4 +389,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         void onLocation(Location location);
     }
 }
+
 
