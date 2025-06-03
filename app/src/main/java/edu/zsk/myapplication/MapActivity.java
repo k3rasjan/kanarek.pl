@@ -44,6 +44,8 @@ import edu.zsk.myapplication.VehicleResponse;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private Handler vehicleRefreshHandler = new Handler();
+    private Runnable vehicleRefreshRunnable;
     private BitmapDescriptor getResizedIcon(int drawableId, int width, int height) {
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), drawableId);
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
@@ -110,7 +112,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         return true;
                     case "Wyloguj":
                         Toast.makeText(this, "Wylogowano", Toast.LENGTH_SHORT).show();
-                        // np. finish(); lub startActivity(new Intent(this, LoginActivity.class));
                         return true;
                     case "Ustawienia":
                         startActivity(new Intent(this, SettingsActivity.class));
@@ -328,9 +329,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.4027, 16.9124), 13));
             Toast.makeText(this, "Brak uprawnień do lokalizacji", Toast.LENGTH_SHORT).show();
             fetchAndDisplayAllVehicles();
+
         }
+        vehicleRefreshRunnable = () -> {
+            fetchAndDisplayAllVehicles();
+            vehicleRefreshHandler.postDelayed(vehicleRefreshRunnable, 30000);
+        };
+        vehicleRefreshHandler.postDelayed(vehicleRefreshRunnable, 30000);
     }
     private void fetchAndDisplayAllVehicles() {
+        if (mMap == null) {
+            Log.w("MAP", "Mapa jeszcze niegotowa – pominięto odświeżenie");
+            return;
+        }
+
+        mMap.clear();
         api.getAllVehicles().enqueue(new Callback<VehicleListResponse>() {
             @Override
             public void onResponse(Call<VehicleListResponse> call, Response<VehicleListResponse> response) {
@@ -387,6 +400,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private interface LocationCallback {
         void onLocation(Location location);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (vehicleRefreshHandler != null && vehicleRefreshRunnable != null) {
+            vehicleRefreshHandler.removeCallbacks(vehicleRefreshRunnable);
+        }
     }
 }
 
