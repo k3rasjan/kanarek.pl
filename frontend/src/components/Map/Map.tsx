@@ -104,20 +104,24 @@ export default function Map({ focusVehicle }: MapProps) {
       setUserLocation(location);
       setLocationError(null);
     } catch (error) {
-      if (error instanceof GeolocationPositionError) {
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
+      console.error('Error getting location:', error);
+      if (error instanceof Error) {
+        const geolocationError = error as GeolocationPositionError;
+        switch (geolocationError.code) {
+          case 1:
             setLocationError('Please enable location access in your browser settings');
             break;
-          case error.POSITION_UNAVAILABLE:
+          case 2:
             setLocationError('Location information is unavailable');
             break;
-          case error.TIMEOUT:
+          case 3:
             setLocationError('Location request timed out');
             break;
           default:
             setLocationError('An unknown error occurred');
         }
+      } else {
+        setLocationError('An unknown error occurred');
       }
     }
   }, [getCurrentLocation]);
