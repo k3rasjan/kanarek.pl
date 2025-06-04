@@ -104,7 +104,7 @@ NODE_ENV=development
 
 ## Database Schema
 
-The application uses PostgreSQL with the following main tables:
+The application uses MySQL with the following main tables:
 - `inspectors` - Stores inspector reports
 - `vehicles` - Caches vehicle positions
 - `shapes` - GTFS shape data
