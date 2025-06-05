@@ -17,7 +17,7 @@ A real-time backend service for tracking public transportation vehicles and mana
 - Express.js
 - Socket.IO
 - Prisma ORM
-- PostgreSQL
+- MySQL
 - Protobuf for GTFS-RT parsing
 
 ## Project Structure
@@ -44,7 +44,7 @@ backend/
 - Handles inspector reporting
 - Manages 5-minute expiration of reports
 - Updates vehicle status in real-time
-- Stores reports in PostgreSQL database
+- Stores reports in MySQL database
 
 ### WebSocket Server
 - Real-time vehicle position updates
@@ -78,7 +78,7 @@ npm start
 Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/kanarek"
+DATABASE_URL="mysql://user:password@localhost:5432/kanarek"
 PORT=8080
 NODE_ENV=development
 ```
@@ -104,7 +104,7 @@ NODE_ENV=development
 
 ## Database Schema
 
-The application uses PostgreSQL with the following main tables:
+The application uses MySQL with the following main tables:
 - `inspectors` - Stores inspector reports
 - `vehicles` - Caches vehicle positions
 - `shapes` - GTFS shape data
